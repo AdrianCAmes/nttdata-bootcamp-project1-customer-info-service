@@ -1,9 +1,6 @@
 package com.nttdata.bootcamp.customerinfoservice.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 
@@ -11,6 +8,7 @@ import java.util.ArrayList;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class BusinessDetails {
     private String name;
     private String ruc;

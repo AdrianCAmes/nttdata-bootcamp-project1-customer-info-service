@@ -1,0 +1,16 @@
+# App config
+server:
+  port: 8081
+
+# Mongodb Config
+spring:
+  data:
+    mongodb:
+      database: ProjectOne
+      host: localhost
+
+# Constants
+constants:
+  customer:
+    personal_type: Personal
+    business_type: Business

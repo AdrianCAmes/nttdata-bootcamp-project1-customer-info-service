@@ -6,15 +6,13 @@ import reactor.core.publisher.Mono;
 
 public interface CustomerService {
 
-    Mono<Customer> create(Mono<Customer> personMono);
+    Mono<Customer> create(Customer customer);
 
     Mono<Customer> findById(String id);
 
     Flux<Customer> findAll();
 
-    Mono<Customer> update(Mono<Customer> personMono);
-
-    Mono<Customer> change(Mono<Customer> personMono);
+    Mono<Customer> update(Customer customer);
 
     Mono<Customer> removeById(String id);
 }
