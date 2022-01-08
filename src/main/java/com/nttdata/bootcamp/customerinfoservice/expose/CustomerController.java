@@ -30,15 +30,14 @@ public class CustomerController {
         return customerService.findById(id)
                 .flatMap(retrievedCustomer -> Mono.just(ResponseEntity.ok(retrievedCustomer)))
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
-                //.onErrorResume(IllegalArgumentException.class, e -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage())));
-                //.onErrorReturn(error -> Mono.just(ResponseEntity.notFound().build()));
     }
 
     @PostMapping("/customers")
-    public Mono<ResponseEntity<Object>> createCustomer(@RequestBody Customer customer) {
+    public Mono<ResponseEntity<Customer>> createCustomer(@RequestBody Customer customer) {
         log.info("Post operation in /customers");
         return customerService.create(customer)
-                .flatMap(createdCustomer -> Mono.just(ResponseEntity.status(HttpStatus.CREATED).body(createdCustomer)));
+                .flatMap(createdCustomer -> Mono.just(ResponseEntity.status(HttpStatus.CREATED).body(createdCustomer)))
+                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(null)));
     }
 
     @PutMapping("/customers")

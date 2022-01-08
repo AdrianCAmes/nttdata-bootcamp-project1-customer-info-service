@@ -3,9 +3,9 @@ package com.nttdata.bootcamp.customerinfoservice.business.impl;
 import com.nttdata.bootcamp.customerinfoservice.business.CustomerService;
 import com.nttdata.bootcamp.customerinfoservice.model.Customer;
 import com.nttdata.bootcamp.customerinfoservice.repository.CustomerRepository;
+import com.nttdata.bootcamp.customerinfoservice.utils.CustomerUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.logging.Log;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,17 +16,32 @@ import reactor.core.publisher.Mono;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final CustomerUtils customerUtils;
 
     @Override
     public Mono<Customer> create(Customer customer) {
         log.info("Start of operation to create a customer");
 
-        log.info("Creating new customer: [{}]", customer.toString());
-        Mono<Customer> createdUser = customerRepository.insert(customer);
-        log.info("New customer was created successfully");
+        log.info("Validating customer uniqueness");
+        Mono<Customer> createdCustomer = findAll()
+                .filter(retrievedCustomer -> customerUtils.uniqueValuesDuplicity(customer, retrievedCustomer))
+                .hasElements().flatMap(isARepeatedCustomer -> {
+                    if (isARepeatedCustomer) {
+                        log.warn("Customer does not accomplish with uniqueness specifications");
+                        log.warn("Proceeding to abort create operation");
+                        return Mono.empty();
+                    }
+                    else {
+                        log.info("Creating new customer: [{}]", customer.toString());
+                        Mono<Customer> newCustomer = customerRepository.insert(customer);
+                        log.info("New customer was created successfully");
+
+                        return newCustomer;
+                    }
+                });
 
         log.info("End of operation to create a customer");
-        return createdUser;
+        return createdCustomer;
     }
 
     @Override
@@ -57,11 +72,36 @@ public class CustomerServiceImpl implements CustomerService {
     public Mono<Customer> update(Customer customer) {
         log.info("Start of operation to update a customer");
 
-        log.info("Updating customer with id: [{}]", customer.getId());
+        log.info("Validating customer existence");
         Mono<Customer> updatedCustomer = findById(customer.getId())
-                .flatMap(customerDB -> customerRepository.save(customer));
-        log.info("Customer with id: [{}] was successfully updated", customer.getId());
+                .hasElement().flux().flatMap(customerExists -> {
+                    if (customerExists) {
+                        log.info("Customer with id [{}] exists in database", customer.getId());
+                        log.info("Proceeding to validate customer uniqueness");
+                        return findAll();
+                    } else {
+                        log.warn("Customer with id [{}] does not exist in database", customer.getId());
+                        log.warn("Proceeding to abort update operation");
+                        Customer duplicatedCustomer = customerUtils.copyCustomer(customer);
+                        duplicatedCustomer.setId("");
+                        return Flux.just(duplicatedCustomer);
+                    }
+                })
+                .filter(retrievedCustomer -> customerUtils.uniqueValuesDuplicity(customer, retrievedCustomer))
+                .hasElements().flatMap(isARepeatedCustomer -> {
+                    if (isARepeatedCustomer) {
+                        log.warn("Customer does not accomplish with uniqueness specifications");
+                        log.warn("Proceeding to abort update operation");
+                        return Mono.empty();
+                    }
+                    else {
+                        log.info("Updating customer: [{}]", customer.toString());
+                        Mono<Customer> newCustomer = customerRepository.save(customer);
+                        log.info("Customer with id: [{}] was successfully updated", customer.getId());
 
+                        return newCustomer;
+                    }
+                });
 
         log.info("End of operation to update a customer");
         return updatedCustomer;
