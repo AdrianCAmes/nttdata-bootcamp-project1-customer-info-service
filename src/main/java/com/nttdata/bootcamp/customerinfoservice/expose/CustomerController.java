@@ -2,6 +2,7 @@ package com.nttdata.bootcamp.customerinfoservice.expose;
 
 import com.nttdata.bootcamp.customerinfoservice.business.CustomerService;
 import com.nttdata.bootcamp.customerinfoservice.model.Customer;
+import com.nttdata.bootcamp.customerinfoservice.utils.errorhandling.DuplicatedUniqueFieldException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,7 +40,8 @@ public class CustomerController {
         log.info("Post operation in /customers");
         return customerService.create(customer)
                 .flatMap(createdCustomer -> Mono.just(ResponseEntity.status(HttpStatus.CREATED).body(createdCustomer)))
-                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(null)));
+                .onErrorResume(DuplicatedUniqueFieldException.class, error -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).build()))
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
 
     @PutMapping("/customers")
@@ -45,6 +49,8 @@ public class CustomerController {
         log.info("Put operation in /customers");
         return customerService.update(customer)
                 .flatMap(updatedCustomer -> Mono.just(ResponseEntity.ok(updatedCustomer)))
+                .onErrorResume(DuplicatedUniqueFieldException.class, error -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).build()))
+                .onErrorResume(NoSuchElementException.class, error -> Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build()))
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
     }
 

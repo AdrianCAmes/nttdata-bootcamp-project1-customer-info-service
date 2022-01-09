@@ -4,11 +4,14 @@ import com.nttdata.bootcamp.customerinfoservice.business.CustomerService;
 import com.nttdata.bootcamp.customerinfoservice.model.Customer;
 import com.nttdata.bootcamp.customerinfoservice.repository.CustomerRepository;
 import com.nttdata.bootcamp.customerinfoservice.utils.CustomerUtils;
+import com.nttdata.bootcamp.customerinfoservice.utils.errorhandling.DuplicatedUniqueFieldException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +32,7 @@ public class CustomerServiceImpl implements CustomerService {
                     if (isARepeatedCustomer) {
                         log.warn("Customer does not accomplish with uniqueness specifications");
                         log.warn("Proceeding to abort create operation");
-                        return Mono.empty();
+                        return Mono.error(new DuplicatedUniqueFieldException("Customer does not accomplish with uniqueness specifications"));
                     }
                     else {
                         log.info("Creating new customer: [{}]", customer.toString());
@@ -82,9 +85,7 @@ public class CustomerServiceImpl implements CustomerService {
                     } else {
                         log.warn("Customer with id [{}] does not exist in database", customer.getId());
                         log.warn("Proceeding to abort update operation");
-                        Customer duplicatedCustomer = customerUtils.copyCustomer(customer);
-                        duplicatedCustomer.setId("");
-                        return Flux.just(duplicatedCustomer);
+                        return Flux.error(new NoSuchElementException("Customer does not exist in database"));
                     }
                 })
                 .filter(retrievedCustomer -> customerUtils.uniqueValuesDuplicity(customer, retrievedCustomer))
@@ -92,7 +93,7 @@ public class CustomerServiceImpl implements CustomerService {
                     if (isARepeatedCustomer) {
                         log.warn("Customer does not accomplish with uniqueness specifications");
                         log.warn("Proceeding to abort update operation");
-                        return Mono.empty();
+                        return Mono.error(new DuplicatedUniqueFieldException("Customer does not accomplish with uniqueness specifications"));
                     }
                     else {
                         log.info("Updating customer: [{}]", customer.toString());
@@ -112,11 +113,11 @@ public class CustomerServiceImpl implements CustomerService {
         log.info("Start of operation to remove a customer");
 
         log.info("Deleting customer with id: [{}]", id);
-        Mono<Customer> updatedCustomer = findById(id)
-                .flatMap(customerDB -> customerRepository.deleteById(customerDB.getId()).thenReturn(customerDB));
+        Mono<Customer> removedCustomer = findById(id)
+                .flatMap(retrievedCustomer -> customerRepository.deleteById(retrievedCustomer.getId()).thenReturn(retrievedCustomer));
         log.info("Customer with id: [{}] was successfully deleted", id);
 
         log.info("End of operation to remove a customer");
-        return updatedCustomer;
+        return removedCustomer;
     }
 }
