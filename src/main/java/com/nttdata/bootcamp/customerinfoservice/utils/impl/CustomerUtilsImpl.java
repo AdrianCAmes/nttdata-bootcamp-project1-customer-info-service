@@ -35,12 +35,4 @@ public class CustomerUtilsImpl implements CustomerUtils {
 
         } else return false;
     }
-
-    public Customer copyCustomer(Customer customerToBeCopied) {
-        return new Customer(customerToBeCopied.getId(),
-                customerToBeCopied.getType(),
-                customerToBeCopied.getStatus(),
-                customerToBeCopied.getPersonDetails(),
-                customerToBeCopied.getBusinessDetails());
-    }
 }
