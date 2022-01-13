@@ -21,14 +21,14 @@ public class CustomerUtilsImpl implements CustomerUtils {
                 customerB.getId() != null &&
                 customerA.getId().contentEquals(customerB.getId())) return false;
 
-        // If it's evaluating different customer types then unique values do not repeat each other
-        if (!customerA.getType().contentEquals(customerB.getType())) return false;
+        // If it's evaluating different customer groups (personal and business) then unique values do not repeat each other
+        if (!customerA.getCustomerType().getGroup().contentEquals(customerB.getCustomerType().getGroup())) return false;
 
-        if (customerA.getType().contentEquals(constants.getCUSTOMER_PERSONAL_TYPE())) {
+        if (customerA.getCustomerType().getGroup().contentEquals(constants.getCUSTOMER_PERSONAL_GROUP())) {
             // Unique value for Personal Accounts is Identity Number
             return customerA.getPersonDetails().getIdentityNumber().contentEquals(customerB.getPersonDetails().getIdentityNumber());
 
-        } else if (customerA.getType().contentEquals(constants.getCUSTOMER_BUSINESS_TYPE())) {
+        } else if (customerA.getCustomerType().getGroup().contentEquals(constants.getCUSTOMER_BUSINESS_GROUP())) {
             // Unique values for Business Accounts are RUC and Name
             return customerA.getBusinessDetails().getRuc().contentEquals(customerB.getBusinessDetails().getRuc()) ||
                     customerA.getBusinessDetails().getName().contentEquals(customerB.getBusinessDetails().getName());
