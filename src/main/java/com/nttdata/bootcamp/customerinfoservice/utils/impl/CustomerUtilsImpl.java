@@ -2,6 +2,8 @@ package com.nttdata.bootcamp.customerinfoservice.utils.impl;
 
 import com.nttdata.bootcamp.customerinfoservice.model.Customer;
 import com.nttdata.bootcamp.customerinfoservice.config.Constants;
+import com.nttdata.bootcamp.customerinfoservice.model.dto.request.CustomerCreateRequestDTO;
+import com.nttdata.bootcamp.customerinfoservice.model.dto.request.CustomerUpdateRequestDTO;
 import com.nttdata.bootcamp.customerinfoservice.utils.CustomerUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,5 +36,45 @@ public class CustomerUtilsImpl implements CustomerUtils {
                     customerA.getBusinessDetails().getName().contentEquals(customerB.getBusinessDetails().getName());
 
         } else return false;
+    }
+
+    @Override
+    public Customer customerCreateRequestDTOToCustomer(CustomerCreateRequestDTO customerDTO) {
+        return Customer.builder()
+                .customerType(customerDTO.getCustomerType())
+                .personDetails(customerDTO.getPersonDetails())
+                .businessDetails(customerDTO.getBusinessDetails())
+                .build();
+    }
+
+    @Override
+    public Customer customerUpdateRequestDTOToCustomer(CustomerUpdateRequestDTO customerDTO) {
+        return Customer.builder()
+                .id(customerDTO.getId())
+                .status(customerDTO.getStatus())
+                .customerType(customerDTO.getCustomerType())
+                .personDetails(customerDTO.getPersonDetails())
+                .businessDetails(customerDTO.getBusinessDetails())
+                .build();
+    }
+
+    @Override
+    public CustomerCreateRequestDTO customerToCustomerCreateRequestDTO(Customer customer) {
+        return CustomerCreateRequestDTO.builder()
+                .customerType(customer.getCustomerType())
+                .personDetails(customer.getPersonDetails())
+                .businessDetails(customer.getBusinessDetails())
+                .build();
+    }
+
+    @Override
+    public CustomerUpdateRequestDTO customerToCustomerUpdateRequestDTO(Customer customer) {
+        return CustomerUpdateRequestDTO.builder()
+                .id(customer.getId())
+                .status(customer.getStatus())
+                .customerType(customer.getCustomerType())
+                .personDetails(customer.getPersonDetails())
+                .businessDetails(customer.getBusinessDetails())
+                .build();
     }
 }

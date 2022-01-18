@@ -12,4 +12,10 @@ public class Constants {
 
     @Value("${constants.customer.business_group:}")
     private String customerBusinessGroup;
+
+    @Value("${constants.status.blocked:}")
+    private String statusBlocked;
+
+    @Value("${constants.status.active:}")
+    private String statusActive;
 }

@@ -2,6 +2,8 @@ package com.nttdata.bootcamp.customerinfoservice.expose;
 
 import com.nttdata.bootcamp.customerinfoservice.business.CustomerService;
 import com.nttdata.bootcamp.customerinfoservice.model.Customer;
+import com.nttdata.bootcamp.customerinfoservice.model.dto.request.CustomerCreateRequestDTO;
+import com.nttdata.bootcamp.customerinfoservice.model.dto.request.CustomerUpdateRequestDTO;
 import com.nttdata.bootcamp.customerinfoservice.utils.errorhandling.DuplicatedUniqueFieldException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +38,7 @@ public class CustomerController {
     }
 
     @PostMapping("/customers")
-    public Mono<ResponseEntity<Customer>> createCustomer(@RequestBody Customer customer) {
+    public Mono<ResponseEntity<Customer>> createCustomer(@RequestBody CustomerCreateRequestDTO customer) {
         log.info("Post operation in /customers");
         return customerService.create(customer)
                 .flatMap(createdCustomer -> Mono.just(ResponseEntity.status(HttpStatus.CREATED).body(createdCustomer)))
@@ -45,7 +47,7 @@ public class CustomerController {
     }
 
     @PutMapping("/customers")
-    public Mono<ResponseEntity<Customer>> updateCustomer(@RequestBody Customer customer) {
+    public Mono<ResponseEntity<Customer>> updateCustomer(@RequestBody CustomerUpdateRequestDTO customer) {
         log.info("Put operation in /customers");
         return customerService.update(customer)
                 .flatMap(updatedCustomer -> Mono.just(ResponseEntity.ok(updatedCustomer)))
