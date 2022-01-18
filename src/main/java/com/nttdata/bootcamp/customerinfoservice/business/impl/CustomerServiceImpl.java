@@ -29,7 +29,7 @@ public class CustomerServiceImpl implements CustomerService {
         Mono<Customer> createdCustomer = findAll()
                 .filter(retrievedCustomer -> customerUtils.uniqueValuesDuplicity(customer, retrievedCustomer))
                 .hasElements().flatMap(isARepeatedCustomer -> {
-                    if (isARepeatedCustomer) {
+                    if (Boolean.TRUE.equals(isARepeatedCustomer)) {
                         log.warn("Customer does not accomplish with uniqueness specifications");
                         log.warn("Proceeding to abort create operation");
                         return Mono.error(new DuplicatedUniqueFieldException("Customer does not accomplish with uniqueness specifications"));
@@ -78,7 +78,7 @@ public class CustomerServiceImpl implements CustomerService {
         log.info("Validating customer existence");
         Mono<Customer> updatedCustomer = findById(customer.getId())
                 .hasElement().flux().flatMap(customerExists -> {
-                    if (customerExists) {
+                    if (Boolean.TRUE.equals(customerExists)) {
                         log.info("Customer with id [{}] exists in database", customer.getId());
                         log.info("Proceeding to validate customer uniqueness");
                         return findAll();
@@ -90,7 +90,7 @@ public class CustomerServiceImpl implements CustomerService {
                 })
                 .filter(retrievedCustomer -> customerUtils.uniqueValuesDuplicity(customer, retrievedCustomer))
                 .hasElements().flatMap(isARepeatedCustomer -> {
-                    if (isARepeatedCustomer) {
+                    if (Boolean.TRUE.equals(isARepeatedCustomer)) {
                         log.warn("Customer does not accomplish with uniqueness specifications");
                         log.warn("Proceeding to abort update operation");
                         return Mono.error(new DuplicatedUniqueFieldException("Customer does not accomplish with uniqueness specifications"));
