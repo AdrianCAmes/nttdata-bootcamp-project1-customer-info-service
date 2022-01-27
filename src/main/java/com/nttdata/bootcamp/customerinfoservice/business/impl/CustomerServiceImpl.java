@@ -92,7 +92,7 @@ public class CustomerServiceImpl implements CustomerService {
                     } else {
                         log.warn("Customer with id [{}] does not exist in database", transformedCustomer.getId());
                         log.warn("Proceeding to abort update operation");
-                        return Flux.error(new NoSuchElementException("Customer does not exist in database"));
+                        return Mono.error(new NoSuchElementException("Customer does not exist in database"));
                     }
                 })
                 .filter(retrievedCustomer -> customerUtils.uniqueValuesDuplicity(transformedCustomer, retrievedCustomer))
