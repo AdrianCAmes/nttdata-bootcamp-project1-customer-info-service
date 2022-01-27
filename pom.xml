@@ -161,9 +161,9 @@
 						<id>check</id>
 					</execution>
 				</executions>
-				<!--configuration>
+				<configuration>
 					<excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
-				</configuration-->
+				</configuration>
 			</plugin>
 
 			<!-- Code coverage -->
