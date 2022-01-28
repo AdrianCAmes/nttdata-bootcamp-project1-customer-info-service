@@ -2,12 +2,13 @@ package com.nttdata.bootcamp.customerinfoservice.expose;
 
 
 import com.nttdata.bootcamp.customerinfoservice.business.CustomerService;
+import com.nttdata.bootcamp.customerinfoservice.config.Constants;
 import com.nttdata.bootcamp.customerinfoservice.model.*;
 import com.nttdata.bootcamp.customerinfoservice.model.dto.request.CustomerCreateRequestDTO;
 import com.nttdata.bootcamp.customerinfoservice.model.dto.request.CustomerUpdateRequestDTO;
 import com.nttdata.bootcamp.customerinfoservice.utils.CustomerUtils;
 import com.nttdata.bootcamp.customerinfoservice.utils.errorhandling.DuplicatedUniqueFieldException;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,19 +27,20 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CustomerControllerTest {
-    @MockBean
-    private CustomerService customerService;
     @Autowired
     private WebTestClient webTestClient;
     @Autowired
     private CustomerUtils customerUtils;
+    @Autowired
+    private Constants constants;
+    @MockBean
+    private CustomerService customerService;
 
     private static Customer customerMock1 = new Customer();
     private static Customer customerMock2 = new Customer();
-    private static Customer customerMock3 = new Customer();
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUpEach() {
         PersonDetails representative =  PersonDetails.builder()
                 .name("Marco")
                 .lastname("Cruz")
@@ -59,10 +61,10 @@ class CustomerControllerTest {
                 .id("1")
                 .customerType(CustomerType
                         .builder()
-                        .group("Personal")
-                        .subgroup("Standard")
+                        .group(constants.getCustomerPersonalGroup())
+                        .subgroup("Mock")
                         .build())
-                .status("Active")
+                .status(constants.getStatusActive())
                 .personDetails(representative)
                 .build();
 
@@ -72,10 +74,10 @@ class CustomerControllerTest {
                 .id("2")
                 .customerType(CustomerType
                         .builder()
-                        .group("Business")
-                        .subgroup("Standard")
+                        .group(constants.getCustomerBusinessGroup())
+                        .subgroup("Mock")
                         .build())
-                .status("Active")
+                .status(constants.getStatusActive())
                 .businessDetails(BusinessDetails.builder()
                         .name("NTT Data Peru")
                         .ruc("20874563347")
@@ -87,17 +89,6 @@ class CustomerControllerTest {
                                 .build())
                         .representatives(representatives)
                         .build())
-                .build();
-
-        customerMock3 = Customer.builder()
-                .id("3")
-                .customerType(CustomerType
-                        .builder()
-                        .group("Personal")
-                        .subgroup("Standard")
-                        .build())
-                .status("Active")
-                .personDetails(representative)
                 .build();
     }
 
