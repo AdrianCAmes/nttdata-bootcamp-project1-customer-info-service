@@ -17,4 +17,6 @@ public interface CustomerService {
     Mono<Customer> update(CustomerUpdateRequestDTO customerDTO);
 
     Mono<Customer> removeById(String id);
+
+    void kafkaListener(String credit);
 }

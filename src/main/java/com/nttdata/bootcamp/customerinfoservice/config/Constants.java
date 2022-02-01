@@ -18,4 +18,7 @@ public class Constants {
 
     @Value("${constants.status.active}")
     private String statusActive;
+
+    @Value("${constants.kafka.credits-topic}")
+    private String kafkaCreditsTopic;
 }

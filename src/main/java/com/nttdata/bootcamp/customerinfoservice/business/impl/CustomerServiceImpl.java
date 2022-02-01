@@ -10,6 +10,7 @@ import com.nttdata.bootcamp.customerinfoservice.utils.CustomerUtils;
 import com.nttdata.bootcamp.customerinfoservice.utils.errorhandling.DuplicatedUniqueFieldException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -41,7 +42,7 @@ public class CustomerServiceImpl implements CustomerService {
                     }
                     else {
                         transformedCustomer.setStatus(constants.getStatusActive());
-                        log.info("Creating new customer: [{}]", transformedCustomer.toString());
+                        log.info("Creating new customer: [{}]", transformedCustomer);
                         Mono<Customer> newCustomer = customerRepository.insert(transformedCustomer);
                         log.info("New customer was created successfully");
 
@@ -103,7 +104,7 @@ public class CustomerServiceImpl implements CustomerService {
                         return Mono.error(new DuplicatedUniqueFieldException("Customer does not accomplish with uniqueness specifications"));
                     }
                     else {
-                        log.info("Updating customer: [{}]", transformedCustomer.toString());
+                        log.info("Updating customer: [{}]", transformedCustomer);
                         Mono<Customer> newCustomer = customerRepository.save(transformedCustomer);
                         log.info("Customer with id: [{}] was successfully updated", transformedCustomer.getId());
 
@@ -126,5 +127,11 @@ public class CustomerServiceImpl implements CustomerService {
 
         log.info("End of operation to remove a customer");
         return removedCustomer;
+    }
+
+    @Override
+    @KafkaListener(topics = "${constants.kafka.credits-topic}", groupId = "group_id")
+    public void kafkaListener(String credit) {
+        log.info("New credit was created for customer: " + credit);
     }
 }
